@@ -17,8 +17,12 @@ steps:
   - ls -la /tmp/memory
   - touch /tmp/memory/hello.txt
   - df -T /tmp/memory
+  - cd /tmp/memory
+  - cp /bin/ls .
+  - ./ls
 
 volumes:
 - name: test
   temp:
     medium: memory
+    mount_options: 'exec'

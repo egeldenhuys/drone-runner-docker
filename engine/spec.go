@@ -92,11 +92,12 @@ type (
 	// host node's filesystem into the container. This can
 	// be used as a shared scratch space.
 	VolumeEmptyDir struct {
-		ID        string            `json:"id,omitempty"`
-		Name      string            `json:"name,omitempty"`
-		Medium    string            `json:"medium,omitempty"`
-		SizeLimit int64             `json:"size_limit,omitempty"`
-		Labels    map[string]string `json:"labels,omitempty"`
+		ID           string            `json:"id,omitempty"`
+		Name         string            `json:"name,omitempty"`
+		Medium       string            `json:"medium,omitempty"`
+		SizeLimit    int64             `json:"size_limit,omitempty"`
+		Labels       map[string]string `json:"labels,omitempty"`
+		MountOptions string            `json:"mount_options,omitempty"`
 	}
 
 	// VolumeHostPath mounts a file or directory from the

@@ -88,6 +88,7 @@ func toHostConfig(spec *Spec, step *Step) *container.HostConfig {
 		config.Devices = toDeviceSlice(spec, step)
 		config.Binds = toVolumeSlice(spec, step)
 		config.Mounts = toVolumeMounts(spec, step)
+		config.Tmpfs = toTmpfsSlice(spec, step)
 	}
 	return config
 }
@@ -203,12 +204,37 @@ func toVolumeMounts(spec *Spec, step *Step) []mount.Mount {
 		if isDataVolume(source) {
 			continue
 		}
+
+		// Skip so we can create a tmpfs config to pass the mount options
+		if isTempfs(source) && isTempfsWithMountOptions(source) {
+			continue
+		}
+
 		mounts = append(mounts, toMount(source, target))
 	}
 	if len(mounts) == 0 {
 		return nil
 	}
 	return mounts
+}
+
+func toTmpfsSlice(spec *Spec, step *Step) map[string]string {
+	set := map[string]string{}
+
+	for _, tmpfs := range step.Volumes {
+		source, ok := lookupVolume(spec, tmpfs.Name)
+		if !ok {
+			continue
+		}
+
+		if !isTempfsWithMountOptions(source) {
+			continue
+		}
+
+		set[tmpfs.Path] = source.EmptyDir.MountOptions
+	}
+
+	return set
 }
 
 // helper function converts the volume declaration to a
@@ -222,7 +248,8 @@ func toMount(source *Volume, target *VolumeMount) mount.Mount {
 		to.Source = source.HostPath.Path
 		to.ReadOnly = source.HostPath.ReadOnly
 	}
-	if isTempfs(source) {
+	// Create tempfs using mounts to preserve backwards compatibility
+	if isTempfs(source) && !isTempfsWithMountOptions(source) {
 		to.TmpfsOptions = &mount.TmpfsOptions{
 			SizeBytes: source.EmptyDir.SizeLimit,
 			Mode:      0700,
@@ -277,6 +304,12 @@ func isBindMount(volume *Volume) bool {
 // returns true if the volume is in-memory.
 func isTempfs(volume *Volume) bool {
 	return volume.EmptyDir != nil && volume.EmptyDir.Medium == "memory"
+}
+
+// returns true if the volume is in-memory without mount options
+// meaning the HostConfig.Mounts structure should be used to create it
+func isTempfsWithMountOptions(volume *Volume) bool {
+	return volume.EmptyDir != nil && volume.EmptyDir.Medium == "memory" && volume.EmptyDir.MountOptions != ""
 }
 
 // returns true if the volume is a data-volume.

@@ -501,11 +501,12 @@ func (c *Compiler) Compile(ctx context.Context, args runtime.CompilerArgs) runti
 		src := new(engine.Volume)
 		if v.EmptyDir != nil {
 			src.EmptyDir = &engine.VolumeEmptyDir{
-				ID:        id,
-				Name:      v.Name,
-				Medium:    v.EmptyDir.Medium,
-				SizeLimit: int64(v.EmptyDir.SizeLimit),
-				Labels:    labels,
+				ID:           id,
+				Name:         v.Name,
+				Medium:       v.EmptyDir.Medium,
+				SizeLimit:    int64(v.EmptyDir.SizeLimit),
+				Labels:       labels,
+				MountOptions: v.EmptyDir.MountOptions,
 			}
 		} else if v.HostPath != nil {
 			src.HostPath = &engine.VolumeHostPath{

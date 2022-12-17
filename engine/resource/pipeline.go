@@ -135,8 +135,9 @@ type (
 	// host node's filesystem into the container. This can
 	// be used as a shared scratch space.
 	VolumeEmptyDir struct {
-		Medium    string             `json:"medium,omitempty"`
-		SizeLimit manifest.BytesSize `json:"size_limit,omitempty" yaml:"size_limit"`
+		Medium       string             `json:"medium,omitempty"`
+		SizeLimit    manifest.BytesSize `json:"size_limit,omitempty" yaml:"size_limit"`
+		MountOptions string             `json:"mount_options,omitempty" yaml:"mount_options"`
 	}
 
 	// VolumeHostPath mounts a file or directory from the
